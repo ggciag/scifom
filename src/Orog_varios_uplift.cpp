@@ -50,7 +50,7 @@ void orog()
         dh=0;
         for (i=0;i<numero_uplift;i++){
             if (tempo>=tempos_uplift_min[i] && tempo<tempos_uplift_max[i]){
-                    dh = dh + uplift_factor[i]*dt*uplift_map[j][i]/1.0E6;
+                    dh = dh + uplift_factor[i]*dt*uplift_map[j][i];
             }
         }
         if (h_topo[j]>6000.0){

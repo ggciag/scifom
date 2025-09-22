@@ -122,3 +122,27 @@ double area(double **xy, long **Tri, long contador)
     if (delta<0) delta*=-1.0;
     return(delta);
 }
+
+long importa_malha(long **Tri){
+    
+	FILE *f_malha;
+
+    long n_tri;
+	
+	f_malha = fopen("malha_externa.txt","r");
+
+    if (f_malha==NULL){
+        printf("File malha_externa.txt does not exist\n");
+        exit(-1);
+    }
+
+    fscanf(f_malha,"%ld",&n_tri);
+	
+	for (long i=0;i<n_tri;i++){
+		fscanf(f_malha, "%ld %ld %ld",&Tri[i][0],&Tri[i][1],&Tri[i][2]);
+	}
+	
+	fclose(f_malha);
+
+    return (n_tri);
+}

@@ -8,6 +8,7 @@
 ////////////////////////
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <time.h>
 #include <math.h>
 #include "header.h"
@@ -38,9 +39,6 @@ void topo_din();
 
 void aloca_fluvi();
 void aloca_uplift();
-void aloca_underp();
-
-void underplate();
 
 void print_topo(double tempo,long muda_ponto);
 
@@ -111,14 +109,26 @@ void orog();
 void vR_sort();
 void vR_calc();
 void vR_calc_orography();
-void calc_vR_external();
-void read_vR_external();
+void calc_vR_external(long t);
+void read_vR_external(int time_int);
 void read_sea_level();
 
 void sea_level_change();
 
-int main()
+extern int ext_mesh;
+
+int main(int argc, char *argv[])
 {
+	if (argc>1){
+		if (strcmp(argv[1],"ext_mesh")==0){
+			ext_mesh=1;
+		}
+		else {
+			printf("Parameter error: %s\n",argv[1]);
+			exit(-1);
+		}
+	}
+
 
     long i,j;
     double soma_h;
@@ -184,18 +194,15 @@ int main()
 
 
     malha();
-    aloca_topo();
-    aloca_falhas();
-    aloca_difusao();
-    aloca_fluvi();
-	aloca_topo_din();
-	
+    aloca_topo(); printf("\nAloca_topo: done\n");
+    aloca_falhas(); printf("\nAloca_falhas: done\n");
+    aloca_difusao(); printf("\nAloca_difusao: done\n");
+    aloca_fluvi(); printf("\nAloca_fluvi: done\n");
+	aloca_topo_din(); 
 	printf("aloca topo_din ok\n");
     aloca_uplift();
 	printf("aloca uplift ok\n");
-	aloca_underp();
-	printf("aloca underplate ok\n");
-	read_vR_external();
+	read_vR_external((long)(tempo/1.0E6));
 	read_sea_level();
 	vR_sort();
 
@@ -247,7 +254,7 @@ int main()
 
 	vR_calc();
 
-	if (vR_external_flag==1) calc_vR_external();
+	if (vR_external_flag==1) calc_vR_external(0);
 	gettimeofday(&start, NULL);
 
     for (tempo=dt;tempo<=tempo_max;tempo+=dt){
@@ -266,7 +273,6 @@ int main()
 
 
         orog();			//printf("orog ok\n");
-		underplate();
 		topo_din();
 
         //monta_falha();
@@ -274,7 +280,10 @@ int main()
 		if (long(tempo)%20000==0){
 			if (vR_external_flag==-1) vR_calc_orography();
 			if (vR_external_flag==0) vR_calc();
-			if (vR_external_flag==1) calc_vR_external();
+			if (vR_external_flag==1) {
+				read_vR_external((long)(tempo/1.0E6));
+				calc_vR_external(0);
+			}
 		}
 
 		

@@ -28,7 +28,8 @@ extern double tempo_muda_falha;
 void calor(double dt_calor){
      
     //double Tvar;
-    long ti,tj,j;
+    //long ti,tj,j;
+    long ti,j;
     //double vv[3], nn[3];
     
     for (ti=0;ti<nodes_thermal;ti++){ 
@@ -36,7 +37,7 @@ void calor(double dt_calor){
     }
     for (ti=0;ti<nodes_thermal;ti++){ 
         for (j=0;j<Kthermal_posconec[ti];j++){
-            tj = Kthermal_conec[ti][j];
+            //tj = Kthermal_conec[ti][j];
             /*
             //Difusao
             Tvar = Temper[ti]-Temper[tj];
@@ -46,7 +47,7 @@ void calor(double dt_calor){
             }
             
             
-            //Advecção
+            //Advecï¿½ï¿½o
             if (tempo<=3000000.0){
                 nn[0]=(xyz_thermal[tj][0]-xyz_thermal[ti][0])/Dist_Temper[ti][j];
                 nn[1]=(xyz_thermal[tj][1]-xyz_thermal[ti][1])/Dist_Temper[ti][j];

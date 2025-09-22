@@ -151,9 +151,9 @@ double *lsr_map;
 
 double nivel;
 double dt;
-long n_sub_dt = 10000;
+long n_sub_dt = 1000;
 
-double tempo;
+double tempo = 0;
 
 double uplift_scale;
 
@@ -169,13 +169,6 @@ double topo_seno;
 FILE *f_h_topo;
 FILE *f_h_sed;
 
-////////////////////////Underplate
-double *tempos_underp_min;
-double *tempos_underp_max;
-
-long numero_underp;
-double **underp_map;
-double *underp_factor;
 
 
 //////////////////////////////////////////
@@ -380,7 +373,7 @@ long ntri_lat;
 
 long **tri_lat;
 
-
+int ext_mesh;
 
 
 

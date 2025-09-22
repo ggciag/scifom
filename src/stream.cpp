@@ -40,14 +40,14 @@ void stream()
 
 double stream_x (double x,double z){
 	
-	double A,B,C,D;
+	double B,C,D;
     double pi=3.14159265;
     double U=V_meio/seg_per_ano;
     double Uz = U;
 	
 	double v_x;
     
-    A = 0;
+    //A = 0;
     B = (2*pi*Uz-pi*pi*U)/(pi*pi-4);
     C = (4*U-2*pi*Uz)/(pi*pi-4);
     D = (2*pi*U-4*Uz)/(pi*pi-4);
@@ -74,7 +74,7 @@ double stream_x (double x,double z){
 
 double stream_z (double x,double z){
 	
-	double A,B,C,D;
+	double A,C,D;
     double pi=3.14159265;
     double U=V_meio/seg_per_ano;
     double Uz = U;
@@ -82,7 +82,7 @@ double stream_z (double x,double z){
 	double v_z;
     
     A = 0;
-    B = (2*pi*Uz-pi*pi*U)/(pi*pi-4);
+    //B = (2*pi*Uz-pi*pi*U)/(pi*pi-4);
     C = (4*U-2*pi*Uz)/(pi*pi-4);
     D = (2*pi*U-4*Uz)/(pi*pi-4);
 	

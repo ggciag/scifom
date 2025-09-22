@@ -56,7 +56,7 @@ void topo_din()
     }
 
     for (i=0;i<nodes;i++){
-        dh = fac_topo_din*(topo_din_map[n_tempo][i])*(dt/1000000);
+        dh = fac_topo_din*(topo_din_map[n_tempo][i])*(dt);
         h_topo[i]+=dh;
         h_bed[i]+=dh;
 		h_crust_sup[i]+=dh;

@@ -66,7 +66,7 @@ void modif_moho()
 	long i;
 	double z;
 	
-	double dx,dz;
+	double dz;
     
 	double x_mean,y_mean,z_mean;
 	
@@ -79,7 +79,7 @@ void modif_moho()
 		//if (moho[i]>moho_max_antes) moho_max_antes=moho[i];
 
 		
-		dx=stream_x(x_mean-(axis_stream+var_fault_stream(y_mean)),z_mean)*tempo_despl*seg_per_ano;
+		//dx=stream_x(x_mean-(axis_stream+var_fault_stream(y_mean)),z_mean)*tempo_despl*seg_per_ano;
 		dz=stream_z(x_mean-(axis_stream+var_fault_stream(y_mean)),z_mean)*tempo_despl*seg_per_ano;
 		
 		//if (fabs(dz)>zmax) zmax=fabs(dz);

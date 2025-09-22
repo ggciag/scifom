@@ -104,9 +104,10 @@ extern double *Te_map;
 
 void aloca_topo()
 {
+	printf("nodes_max_aloca: %ld, nodes: %ld\n",nodes_max_aloca,nodes);
 	long i,j;
 	//double dist2,dist_max=40000;
-    double aux;
+    //double aux;
 	h_topo = Aloc_vector_real (nodes_max_aloca);
 	h_crust_sup = Aloc_vector_real (nodes_max_aloca);
 
@@ -163,7 +164,7 @@ void aloca_topo()
 
 	FILE *f_topo;
 
-	f_topo = fopen("topo_moho_lito_up.txt","r");
+	f_topo = fopen("topo_moho_lito_Te.txt","r");
 
 
 	for (i=0;i<nodes;i++){
@@ -183,7 +184,7 @@ void aloca_topo()
 			}
 		}*/
 
-		fscanf(f_topo,"%lf %lf %lf %lf %lf",&h_topo[i],&moho[i],&Lf_vec[i],&aux,&Te_map[i]);
+		fscanf(f_topo,"%lf %lf %lf %lf",&h_topo[i],&moho[i],&Lf_vec[i],&Te_map[i]);
 
 		h_bed[i]=h_topo[i];
 
@@ -204,6 +205,8 @@ void aloca_topo()
 	}
 
 	fclose(f_topo);
+
+	printf("topo_moho_litho_up: done\n");
 
 	double dist;
 	double dx;

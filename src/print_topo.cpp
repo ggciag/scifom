@@ -66,22 +66,21 @@ extern double *vR_map;
 
 extern double *area_vor;
 
-extern double* lsr_map;
+void calc_vR_external(long t);
 
-extern int lith_flag;
-extern int nsr;
-extern double** h_sr;
+void fluvi_min();
+
 
 void print_topo(double tempo,long muda_ponto)
 {
 
 	calc_Temper35();
 
-	long i,t,j;
+	long i,t;
 
 	char nome[30];
 
-	if (long(tempo)%100000==0){
+	if (long(tempo)%10000==0){
 
 		FILE *Ftopo;
 
@@ -89,25 +88,32 @@ void print_topo(double tempo,long muda_ponto)
 
 		Ftopo = fopen(nome, "w");
 
-		for (i=0;i<nodes;i++) fprintf(Ftopo,"%10.3f %10.3f %10.3f %10.3f %10.4f %6.1f %6.1f %ld %1ld %.4lf\n",h_topo[i],h_bed[i],h_crust_sup[i],moho[i],h_flex_cumulat[i],h_temper35[i],(Qr[i]*n_sub_dt)/dt,direc_fluvi[i],lagos[i],vR_map[i]/area_vor[i]);
+		//for (i=0;i<nodes;i++) fprintf(Ftopo,"%10.3f %10.3f %10.3f %10.3f %10.4f %6.1f %6.1f %ld %1ld %.4lf\n",h_topo[i],h_bed[i],h_crust_sup[i],moho[i],h_flex_cumulat[i],h_temper35[i],(Qr[i]*n_sub_dt)/dt,direc_fluvi[i],lagos[i],vR_map[i]/area_vor[i]);
+		for (i=0;i<nodes;i++) fprintf(Ftopo,"%10.3f %10.3f %6.1f %ld %1ld %.4lf\n",h_topo[i],h_bed[i],(Qr[i]*n_sub_dt)/dt,direc_fluvi[i],lagos[i],vR_map[i]/area_vor[i]);
 
 		fclose(Ftopo);
-		if (lith_flag == 1) {
-			FILE* Ftopo;
 
-			sprintf(nome, "lsr_map_hsr%.3f.txt", tempo / 1e6);
 
-			Ftopo = fopen(nome, "w");
 
-			for (i = 0; i < nodes; i++) {
-				fprintf(Ftopo, "%10.1f ", lsr_map[i]);
-				for (j = 0; j < nsr; j++) {
-					fprintf(Ftopo, "%10.3f ", h_sr[i][j]);
-				}
-				fprintf(Ftopo, "\n");
-			}
-			fclose(Ftopo);
-		}
+		calc_vR_external(1);
+		fluvi_min();
+		sprintf(nome, "Prec_max_%.3f.txt",tempo/1e6);
+		Ftopo = fopen(nome, "w");
+		for (i=0;i<nodes;i++) fprintf(Ftopo,"%6.1f %.4lf\n",(Qr[i]*n_sub_dt)/dt,vR_map[i]/area_vor[i]);
+		fclose(Ftopo);
+
+		calc_vR_external(2);
+		fluvi_min();
+		sprintf(nome, "Prec_min_%.3f.txt",tempo/1e6);
+		Ftopo = fopen(nome, "w");
+		for (i=0;i<nodes;i++) fprintf(Ftopo,"%6.1f %.4lf\n",(Qr[i]*n_sub_dt)/dt,vR_map[i]/area_vor[i]);
+		fclose(Ftopo);
+
+
+		calc_vR_external(0);
+		fluvi_min();
+
+
 		if (tempo==0){
 			Ftopo = fopen("m_Tri.txt", "w");
 			fprintf(Ftopo, "%ld\n", tri);

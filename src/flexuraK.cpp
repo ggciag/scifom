@@ -105,7 +105,7 @@ void flexuraK()
 
 	//double xa,ya;
 
-	double xxn;
+	//double xxn;
 
 	//double ddx,ddy;
 
@@ -127,7 +127,7 @@ void flexuraK()
 
 	//double yy3 = (miny+0.5*(maxy-miny));
 
-	xxn = (minx+0.32*(maxx-minx));
+	//xxn = (minx+0.32*(maxx-minx));
 
 	for (t=0;t<tri_flex;t++){
         /*if ((xy_flex[Tri_flex[t][0]][1]+

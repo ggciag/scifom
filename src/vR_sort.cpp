@@ -177,39 +177,34 @@ void sort(unsigned long n, double arr[], long *Ox)
 	free(istack);
 }
 
-void read_vR_external()
+void read_vR_external(int time_int)
 {
 	FILE *f;
-	nvR_maps=0;
-	f = fopen("vR_external.txt","r");
+	nvR_maps=3;
+
+	char nome[100];
+
+	sprintf(nome,"Prec_%d.txt",time_int);
+
+	f = fopen(nome,"r");
+	printf("reading %s\n",nome);
 	if (f!=NULL){
+		vR_external_flag=1;
+		printf("\n\nExternal vR on\n\n");
+		vR_maps = Aloc_matrix_real(nvR_maps,nodes_max_aloca);
 		
-		fscanf(f,"%d",&nvR_maps);
-		if (nvR_maps>0){
-			vR_external_flag=1;
-			printf("\n\nExternal vR on\n\n");
-			h_vR_external = Aloc_vector_real(nvR_maps);
-			vR_maps = Aloc_matrix_real(nvR_maps,nodes_max_aloca);
-			
+		for (int i=0; i<nodes; i++){
 			for (int t=0;t<nvR_maps;t++){
-				fscanf(f,"%lf",&h_vR_external[t]);
-				printf("%lf\n",h_vR_external[t]);
-			}
-			for (int i=0; i<nodes; i++){
-				for (int t=0;t<nvR_maps;t++){
-					fscanf(f,"%lf",&vR_maps[t][i]);
-				}
+				fscanf(f,"%lf",&vR_maps[t][i]);
 			}
 		}
-		else {
-			vR_external_flag=-1;
-			fscanf(f,"%lf %lf",&windx,&windy);
-		}
+	
 		fclose(f);
 	}
 	else {
 		vR_external_flag=0;
-		printf("\n\nExternal vR off\n\n");
+		printf("\n\nExternal vR file not found\n\n");
+		exit(-2);
 	}
 }
 
