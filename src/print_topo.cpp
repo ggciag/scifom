@@ -66,6 +66,8 @@ extern double *vR_map;
 
 extern double *area_vor;
 
+extern int vR_external_flag;
+
 void calc_vR_external(long t);
 
 void fluvi_min();
@@ -94,23 +96,24 @@ void print_topo(double tempo,long muda_ponto)
 		fclose(Ftopo);
 
 
+		if (vR_external_flag==1){
+			calc_vR_external(1);
+			fluvi_min();
+			sprintf(nome, "Prec_max_%.3f.txt",tempo/1e6);
+			Ftopo = fopen(nome, "w");
+			for (i=0;i<nodes;i++) fprintf(Ftopo,"%6.1f %.4lf\n",(Qr[i]*n_sub_dt)/dt,vR_map[i]/area_vor[i]);
+			fclose(Ftopo);
 
-		calc_vR_external(1);
-		fluvi_min();
-		sprintf(nome, "Prec_max_%.3f.txt",tempo/1e6);
-		Ftopo = fopen(nome, "w");
-		for (i=0;i<nodes;i++) fprintf(Ftopo,"%6.1f %.4lf\n",(Qr[i]*n_sub_dt)/dt,vR_map[i]/area_vor[i]);
-		fclose(Ftopo);
-
-		calc_vR_external(2);
-		fluvi_min();
-		sprintf(nome, "Prec_min_%.3f.txt",tempo/1e6);
-		Ftopo = fopen(nome, "w");
-		for (i=0;i<nodes;i++) fprintf(Ftopo,"%6.1f %.4lf\n",(Qr[i]*n_sub_dt)/dt,vR_map[i]/area_vor[i]);
-		fclose(Ftopo);
+			calc_vR_external(2);
+			fluvi_min();
+			sprintf(nome, "Prec_min_%.3f.txt",tempo/1e6);
+			Ftopo = fopen(nome, "w");
+			for (i=0;i<nodes;i++) fprintf(Ftopo,"%6.1f %.4lf\n",(Qr[i]*n_sub_dt)/dt,vR_map[i]/area_vor[i]);
+			fclose(Ftopo);
 
 
-		calc_vR_external(0);
+			calc_vR_external(0);
+		}
 		fluvi_min();
 
 

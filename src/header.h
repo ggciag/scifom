@@ -121,7 +121,7 @@ double vR2andes;
 double **vR_maps;
 double *h_vR_external;
 int nvR_maps;
-int vR_external_flag;
+int vR_external_flag=0;
 
 double Terigida;
 double Teoffshore;
@@ -373,7 +373,7 @@ long ntri_lat;
 
 long **tri_lat;
 
-int ext_mesh;
+int ext_mesh=0;
 
 
 

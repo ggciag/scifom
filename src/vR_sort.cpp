@@ -189,7 +189,7 @@ void read_vR_external(int time_int)
 	f = fopen(nome,"r");
 	printf("reading %s\n",nome);
 	if (f!=NULL){
-		vR_external_flag=1;
+		//vR_external_flag=1;
 		printf("\n\nExternal vR on\n\n");
 		vR_maps = Aloc_matrix_real(nvR_maps,nodes_max_aloca);
 		
@@ -202,7 +202,7 @@ void read_vR_external(int time_int)
 		fclose(f);
 	}
 	else {
-		vR_external_flag=0;
+		//vR_external_flag=0;
 		printf("\n\nExternal vR file not found\n\n");
 		exit(-2);
 	}

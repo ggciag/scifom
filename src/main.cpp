@@ -119,7 +119,7 @@ extern int ext_mesh;
 
 int main(int argc, char *argv[])
 {
-	if (argc>1){
+	/*if (argc>1){
 		if (strcmp(argv[1],"ext_mesh")==0){
 			ext_mesh=1;
 		}
@@ -127,6 +127,25 @@ int main(int argc, char *argv[])
 			printf("Parameter error: %s\n",argv[1]);
 			exit(-1);
 		}
+	}*/
+
+	for (int i=1; i< argc; i++){
+		if (strcmp(argv[1],"ext_mesh")==0){
+			ext_mesh=1;
+		}
+		else if (strcmp(argv[1],"ext_precipitation")==0){
+			vR_external_flag=1;
+		}
+		else if (strcmp(argv[1],"const_precipitation")==0){
+			vR_external_flag=0;
+		}
+		else if (strcmp(argv[1],"orographic_precipitation")==0){
+			vR_external_flag=-1;
+		}
+		else {
+            printf("Unknown option: %s\n", argv[i]);
+			exit(3);
+        }
 	}
 
 
@@ -202,7 +221,7 @@ int main(int argc, char *argv[])
 	printf("aloca topo_din ok\n");
     aloca_uplift();
 	printf("aloca uplift ok\n");
-	read_vR_external((long)(tempo/1.0E6));
+	if (vR_external_flag==1) read_vR_external((long)(tempo/1.0E6));
 	read_sea_level();
 	vR_sort();
 
