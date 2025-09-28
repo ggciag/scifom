@@ -31,6 +31,8 @@ void IO (*nx, *ny){
 void malha();
 void malha_regular(double minx,double maxx,double miny,double maxy,long Nx, long Ny);
 
+void reader();
+
 void aloca_difusao();
 void aloca_topo();
 
@@ -154,50 +156,12 @@ int main(int argc, char *argv[])
 
     nivel=0.0;
 
-	FILE *entra_var;
-	entra_var = fopen("param_OrogSedFlex_1.1.txt", "r");
-
-	fscanf(entra_var,"%lf",&maxy);
-	fscanf(entra_var,"%lf",&miny);
-
-	fscanf(entra_var,"%ld",&n_lat);
-	fscanf(entra_var,"%ld",&n_latx);
-
-
-	fscanf(entra_var, "%lf",&axis_stream);
-	fscanf(entra_var, "%lf",&Terigida);
-	fscanf(entra_var, "%lf",&Teoffshore);
-	//TeConstante2=TeConstante;
-	//fscanf(entra_var, "%lf",&Telitho);
-	//Telitho = TeConstante;
-
-	fscanf(entra_var,"%lf",&vR);
-	fscanf(entra_var,"%lf",&time_ofchangevR);
-	fscanf(entra_var,"%lf",&vR2);
-
-	fscanf(entra_var,"%lf",&vRandes);
-	fscanf(entra_var,"%lf",&time_ofchangevRandes);
-	fscanf(entra_var,"%lf",&vR2andes);
-
-	fscanf(entra_var, "%lf",&Kf);
-	K_d = 0.0;
-	fscanf(entra_var, "%lf",&K_m);
-
-	fscanf(entra_var, "%lf",&ls);
-	fscanf(entra_var, "%lf",&lb);
-	fscanf(entra_var, "%lf",&lb2);
-
-	fscanf(entra_var, "%lf",&uplift_scale);
-
-    fscanf(entra_var, "%lf",&time_ofchangeu);
-    fscanf(entra_var, "%lf",&uplift_scale2);
-    fscanf(entra_var, "%lf",&tempo_max);
-    fscanf(entra_var, "%lf",&dt);
+	reader();
 
 	aloca_falhas();
 
 
-	fclose(entra_var);
+	
 
 
 	//char nome[80];

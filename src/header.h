@@ -135,7 +135,7 @@ double *vR_flow;
 double windx=-1.0;
 double windy=0.0;
 
-double K_d;// = 0.3; /////alterado
+double K_d=0.0;// = 0.3; /////alterado
 double K_m;// = 200.0;
 double Kf;// = 0.03;
 double ls;// = 10000.0; ////alterado
