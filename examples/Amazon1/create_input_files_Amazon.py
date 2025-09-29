@@ -16,6 +16,7 @@ def irregular_mesh(x,y,perturbation=0.25):
   for i in range(len(x)):
     y_mesh[:,i]=y
   cond = ((x_mesh>x.min()) & (x_mesh<x.max()) & (y_mesh>y.min()) & (y_mesh<y.max()))
+  np.random.seed(1)
   x_mesh[cond] += dx*perturbation*((np.random.rand(len(y),len(x))-0.5)*2)[cond]
   y_mesh[cond] += dy*perturbation*((np.random.rand(len(y),len(x))-0.5)*2)[cond]
   
@@ -69,7 +70,7 @@ nx = int((longmax-longmin)*2+1)
 x = np.linspace(longmin,longmax,nx)
 ny = int((latmax-latmin)*2+1)
 y = np.linspace(latmin,latmax,ny)
-y -= np.min(y)
+y -= np.min(y) - 10.0
 x -= np.min(x) - 10.0
 topo = topo[::-5,::5]
 
