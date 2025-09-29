@@ -24,8 +24,6 @@ extern double minx;
 extern double maxy;
 extern double miny;
 
-extern double Edge;
-
 extern double seg_per_ano;
 
 extern long **Tri;

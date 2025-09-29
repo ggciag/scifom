@@ -73,8 +73,6 @@ extern double depth;
 
 extern long *cond_topo_modif;
 
-extern long *in_tri; // Numero do triangulo para o respectivo ponto novo
-
 extern double tempo;
 
 extern int ext_mesh;
@@ -84,12 +82,12 @@ void malha()
     
     long i,j,jj,maxj,k,l,m,ii;
     double x,y;    
-    double area_tri,aresta,aresta_aux;
+    double area_tri,aresta;
     double *Ax,*Ay,*B,alpha,beta;
     
-    printf("Digite o numero de pontos da lateral\n");
+    //printf("Digite o numero de pontos da lateral\n");
     long n,t;
-    //scanf("%d",&n_lat);
+    
     
     n = n_lat*n_latx;
     nodes_max_aloca = n*3;
@@ -101,23 +99,22 @@ void malha()
     tri=2*n;
     tri_max_aloca=tri*3;    
     
-    
+    printf("\nLimits iniciais: %f %f %f %f\n",minx,maxx,miny,maxy);
     area_tri = (maxx-minx)*(maxy-miny)/tri;
-    //aresta = sqrt(4*1.73*area_tri/3);
+    
     aresta = (maxy-miny)/(n_lat-1);
 
     printf("\nmaxx before: %f\n",maxx);
 	
 	minx = 100000.0;
-	maxx = minx;//aresta*(n_latx-1)+minx;
+	maxx = minx;
     printf("\nmaxx after: %f\n",maxx);
 
     Edge = aresta;
     
     long verif;
     printf("Creating nodes\n");
-	
-	in_tri = Aloc_vector_long(n_lat);
+
 	
     xy = Aloc_matrix_real(nodes_max_aloca,3);
     conec = Aloc_matrix_long(nodes_max_aloca,max_conec_p);
@@ -159,9 +156,6 @@ void malha()
 	fclose(f_pontos);
 	
 	
-    aresta_aux=aresta*aresta*0.7*0.7;
-    
-    printf("Aresta min: %f\n",sqrt(aresta_aux));
     
    
     srand(1);

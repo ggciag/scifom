@@ -40,6 +40,9 @@ extern double uplift_scale2;
 extern double tempo_max;
 extern double dt;
 
+extern long Nx;
+extern long Ny;
+
 void reader(){
     FILE *entra_var;
 	entra_var = fopen("param_OrogSedFlex_1.1.txt", "r");
@@ -72,6 +75,11 @@ void reader(){
         //fscanf(entra_var,"%ld",&n_lat);
         else if (strcmp(tkn_w, "nx") == 0) {n_latx = atoi(tkn_v);}
         //fscanf(entra_var,"%ld",&n_latx);
+
+        else if (strcmp(tkn_w, "ny_flexural") == 0) {Ny = atoi(tkn_v);}
+        
+        else if (strcmp(tkn_w, "nx_flexural") == 0) {Nx= atoi(tkn_v);}
+        
 
         else if (strcmp(tkn_w, "axis_stream") == 0) {axis_stream = atof(tkn_v);}
         //fscanf(entra_var, "%lf",&axis_stream);

@@ -44,9 +44,6 @@ extern long num_falha;
 
 extern long *lagos;
 
-extern long n_lat;
-extern long *in_tri;
-
 extern double tempo_max_stream;
 
 extern double tempo_despl;

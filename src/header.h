@@ -5,8 +5,8 @@ double miny;//=0.0;
 
 double Edge;
 
-long n_lat;//=81;
-long n_latx;//=101;
+long n_lat;
+long n_latx;
 
 double tempo_max;//=50.1E6;
 
@@ -339,8 +339,6 @@ double **falha_plot; //posi��o da falha em y = 0
 long **falha_plot_pos;
 
 double tgdip = 1;//1.73;//12.0/20.0;
-
-long *in_tri; // Numero do triangulo para o respectivo ponto novo
 
 //double tempo_muda_falha=500000;
 
