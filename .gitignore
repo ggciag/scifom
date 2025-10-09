@@ -4,4 +4,6 @@
 # Ignore build files:
 src/*.o
 
+te_global.xyz
+src/scifom
 
