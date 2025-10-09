@@ -43,6 +43,8 @@ extern double dt;
 extern long Nx;
 extern long Ny;
 
+extern long n_sub_dt;
+
 void reader(){
     FILE *entra_var;
 	entra_var = fopen("param_OrogSedFlex_1.1.txt", "r");
@@ -131,6 +133,8 @@ void reader(){
         //fscanf(entra_var, "%lf",&tempo_max);
         else if (strcmp(tkn_w, "dt") == 0) {dt = atof(tkn_v);}
         //fscanf(entra_var, "%lf",&dt);
+
+        else if (strcmp(tkn_w, "n_sub_dt") == 0) {n_sub_dt = atoi(tkn_v);}
 
         // Else
         else
