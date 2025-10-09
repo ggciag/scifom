@@ -52,6 +52,7 @@ extern double **xy;
 extern long nodes;
 extern long nodes_max_aloca;
 extern double *area_vor;
+extern double *inv_area;
 extern double **aresta_vor;
 extern double **dist_vor;
 
@@ -131,6 +132,7 @@ void malha()
     B = Aloc_vector_real(max_conec_p);   
     
     area_vor = Aloc_vector_real(nodes_max_aloca);
+    inv_area = Aloc_vector_real(nodes_max_aloca);
     aresta_vor = Aloc_matrix_real(nodes_max_aloca,max_conec_p);
     
     Tri= Aloc_matrix_long(tri_max_aloca,4);
@@ -349,9 +351,13 @@ void malha()
     
     printf("\nArea total calculada:%g",soma_area);///1000000.0);
     printf("\nArea total real:     %g\n",(maxx-minx)*(maxy-miny));///1000000.0);
+
+
+    for (i=0; i<nodes; i++)
+        inv_area[i] = 1.0 / area_vor[i];
     
-    
-    
+
+
     double bordaL=5.0;    
     malha_regular(minx-bordaL,maxx+bordaL,miny,maxy,Nx,Ny);   
 	thermal_aloca();

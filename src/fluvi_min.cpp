@@ -1,5 +1,6 @@
 //MODIFICADO  vR modificado aqui!!!! 
 
+#include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
@@ -15,6 +16,7 @@ extern long **conec;
 extern long *pos_conec;
 
 extern double *area_vor;
+extern double *inv_area;
 extern double **aresta_vor;
 extern double **dist_vor;
 
@@ -409,16 +411,47 @@ void fluvi_min()
 		lsr_map[i]*=ls;
 		Qr_prov[i]*=Kf/dist_fluvi[i];
 	}
-	double hi,hj;
+	double hi,hj,ref;
 	
 	for (cont=0;cont<n_sub_dt;cont++){
 		
-		for (i=0;i<nodes;i++){
-			Qf[i]=0;
+		memset(Qf, 0, nodes * sizeof(double));
+
+		for (cont_stack = 0; cont_stack < nodes; cont_stack++) {
+			i = stack_fluvi[cont_stack];
+			j = direc_fluvi[i];
+
+			if (j == i) {
+				Df[i] = Qf[i] * inv_area[i];
+				continue;
+			}
+
+			hi = h_topo_prov[i];
+			hj = h_topo_prov[j];
+
+			if (hi <= hj) {
+				Df[i] = Qf[i] * inv_area[i];
+				continue;
+			}
+
+			double ref = fmax(hj, nivel);
+			Qeqb = Qr_prov[i] * (hi - ref);
+
+			if (Qeqb <= Qf[i]) {
+				Df[i] = (Qf[i] - Qeqb) * inv_area[i];
+				//#pragma omp atomic
+				Qf[j] += Qeqb;
+			} else {
+				lb = (h_bed[i] < hi) ? lsr_map[i] : Lf_vec[i];
+				double df_local = (Qf[i] - Qeqb) * inv_area[i] * (dist_fluvi[i] / lb);
+				Df[i] = df_local;
+				//#pragma omp atomic
+				Qf[j] += Qf[i] + (Qeqb - Qf[i]) * (dist_fluvi[i] / lb);
+			}
 		}
 		
 		
-		for (cont_stack=0;cont_stack<nodes;cont_stack++){
+		/*for (cont_stack=0;cont_stack<nodes;cont_stack++){
 			i=stack_fluvi[cont_stack];
 			j=direc_fluvi[i];
 			
@@ -464,7 +497,7 @@ void fluvi_min()
 				Df[i]=Qf[i]/area_vor[i]; 
 			}
 			
-		}
+		}*/
 		
 		for (i=0;i<nodes;i++){
 			h_topo_prov[i]+=cond_topo_modif[i]*Df[i];

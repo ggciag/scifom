@@ -28,6 +28,7 @@ long nodes;
 long nodes_old;
 long nodes_max_aloca;
 double *area_vor;
+double *inv_area;
 double **aresta_vor;
 double **dist_vor;
 
