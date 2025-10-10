@@ -439,65 +439,15 @@ void fluvi_min()
 
 			if (Qeqb <= Qf[i]) {
 				Df[i] = (Qf[i] - Qeqb) * inv_area[i];
-				//#pragma omp atomic
 				Qf[j] += Qeqb;
 			} else {
 				lb = (h_bed[i] < hi) ? lsr_map[i] : Lf_vec[i];
 				double df_local = (Qf[i] - Qeqb) * inv_area[i] * (dist_fluvi[i] / lb);
 				Df[i] = df_local;
-				//#pragma omp atomic
 				Qf[j] += Qf[i] + (Qeqb - Qf[i]) * (dist_fluvi[i] / lb);
 			}
 		}
 		
-		
-		/*for (cont_stack=0;cont_stack<nodes;cont_stack++){
-			i=stack_fluvi[cont_stack];
-			j=direc_fluvi[i];
-			
-			if (j!=i){
-				hi=h_topo_prov[i];
-				hj=h_topo_prov[j];
-				if (hi>hj){      
-					if (hj>nivel){
-						//Qeqb = Kf*Qr_prov[i]*(hi-hj)/dist_fluvi[i];
-						Qeqb = Qr_prov[i]*(hi-hj);
-					}
-					else{
-						//Qeqb = Kf*Qr_prov[i]*(hi-nivel)/dist_fluvi[i];
-						Qeqb = Qr_prov[i]*(hi-nivel);
-					}
-					
-					if (hi<nivel){
-						//Qeqb = Kf*Qr_prov[i]*(hi-hj)/dist_fluvi[i];
-						Qeqb = Qr_prov[i]*(hi-hj);
-					}
-						
-						
-					if (Qeqb<=Qf[i]){
-						Df[i]=(Qf[i]-Qeqb)/area_vor[i];
-						Qf[j]+=Qeqb;
-					}
-					else {
-						if (h_bed[i]<hi)
-							lb=lsr_map[i];
-						else
-							lb=Lf_vec[i];
-						//if (hi>4500.0)
-						//	lb = 10000.0;
-						Df[i]=((Qf[i]-Qeqb)/area_vor[i])*(dist_fluvi[i]/lb);
-						Qf[j]+=Qf[i]+(Qeqb-Qf[i])*(dist_fluvi[i]/lb);
-					}               
-				}    
-				else {
-					Df[i]=Qf[i]/area_vor[i]; 
-				}     
-			}
-			else {
-				Df[i]=Qf[i]/area_vor[i]; 
-			}
-			
-		}*/
 		
 		for (i=0;i<nodes;i++){
 			h_topo_prov[i]+=cond_topo_modif[i]*Df[i];
