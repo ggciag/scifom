@@ -82,10 +82,8 @@ for t in np.arange(time_start,time_stop,time_step):
     topo,moho,Qr,direc,lake,prec = np.loadtxt("m_Topo_%.3f.txt"%(t),unpack=True)
     direc = direc.astype("int")
     index = np.arange(np.size(direc)).astype("int")
-    seg_por_ano = 365.*24.*60.*60.
-    print("%lg"%(np.max(Qr)/seg_por_ano))
-    print("%lg"%(np.max(Qr)))
-    print("%lg"%(50000*seg_por_ano))
+
+    bacias = np.loadtxt("Bacias.txt")
     
 
     dist = (x[index]-x[direc])**2 + (y[index]-y[direc])**2
@@ -106,9 +104,9 @@ for t in np.arange(time_start,time_stop,time_step):
     topo[lake==0] = -200.0
 
     #plt.tricontourf(triang, topo,levels=100, vmin=0,vmax=4)
-    plt.tricontourf(triang, topo,levels=levels,colors=cores)
+    plt.tricontourf(triang, bacias,cmap="flag",levels=15000)
     plt.colorbar()
 
-    plt.savefig("Topo_%07.3f.png"%(t))
+    plt.savefig("Bacias.png"%(t))
 
     plt.close()

@@ -1,6 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.tri as tri
+from matplotlib import colors
 
 #Função que cria uma malha irregular a das coordenadas dos cantos da malha
 def irregular_mesh(x,y,perturbation=0.2):
@@ -32,16 +33,17 @@ def nearest(Xn,Yn,Map,x,y):
     i+=1
   return mapa
 
+clon,clat = np.loadtxt("../coast.txt",unpack=True)
 
 topo = np.loadtxt("../ETOPO10.txt")
 
 topo = np.reshape(topo,(1801,3601))
 
-latmin = -15.0
+latmin = -60.0
 latmax = 15.0
 
 longmin = -85.0
-longmax = -40.0
+longmax = -30.0
 
 
 ilongmin = int((longmin+180)*10)
@@ -55,11 +57,13 @@ topo = topo[ilatmax:ilatmin+1,ilongmin:ilongmax+1]
 
 plt.figure(figsize=(10,10))
 plt.imshow(topo)
-plt.savefig("topo_Amazon.png",dpi=300)
+plt.savefig("topo.png",dpi=300)
 plt.close()
 
 resolutions = [0.1,0.2,0.5]
 resol = resolutions[2]
+
+
 
 
 #Resolução 0.1 x 0.1 graus
@@ -69,6 +73,7 @@ if (resol==resolutions[0]):
     ny = int(latmax-latmin)*10+1
     y = np.linspace(latmin,latmax,ny)
     topo = topo[::-1,:]
+    delta_x = 110.0/10
 
 #Resolução 0.2 x 0.2 graus
 elif (resol==resolutions[1]):
@@ -77,6 +82,7 @@ elif (resol==resolutions[1]):
     ny = int(latmax-latmin)*5+1
     y = np.linspace(latmin,latmax,ny)
     topo = topo[::-2,::2]
+    delta_x = 2*110.0/10
 
 #Resolução 0.5 x 0.5 graus
 elif (resol==resolutions[2]):
@@ -85,6 +91,7 @@ elif (resol==resolutions[2]):
     ny = int((latmax-latmin)*2+1)
     y = np.linspace(latmin,latmax,ny)
     topo = topo[::-5,::5]
+    delta_x = 5*110.0/10
 
 
 print(np.size(x),np.size(y),np.shape(topo))
@@ -94,11 +101,15 @@ print(int(nx*ny),int((nx-1)*(ny-1)*2))
 X,Y = irregular_mesh(x,y)
 
 
+nlat,nlon = np.shape(X)
+print(nlat,nlon)
+
+
 
 plt.figure(figsize=(10,10))
 plt.contourf(x,y,topo,100)
 plt.axis("equal")
-plt.savefig("topo_Amazon_mesh.png",dpi=300)
+plt.savefig("topo_mesh.png",dpi=300)
 plt.close()
 
 
@@ -122,17 +133,122 @@ topo[cond] *= 0.001
 cond = (lon>-81.0) & (lon<-66.0) & (lat>=-15.0) & (lat<0.0) & (topo>0.0)
 topo[cond] *= 0.001
 
-cond = (lon>-81.0) & (lon<-69.0) & (lat>=-15.0) & (topo>0.0)
+cond = (lon>-80.0) & (lon<-69.0) & (lat>=-15.0) & (topo>0.0)
 topo[cond] *= 0.001
 
+cond = (lon>-75.0) & (lon<-55.0) & (lat>=9.0) & (lat<=11.0) & (topo>0.0)
+topo[cond] *= 0.001
 
 
 
 ##### Constrói o soerguimento andino
 
-uplift_rate = (topo_copy - topo)
-uplift_rate[topo_copy<800.0] = 0.0
-uplift_rate *=0.18/1.0E6
+diff_topo = (topo_copy - topo)
+diff_topo[topo_copy<800.0] = 0.0
+
+
+diff_topo = np.reshape(diff_topo,(nlat,nlon))
+
+
+plt.figure(figsize=(20,10))
+plt.axis("equal")
+plt.contourf(x,y,diff_topo,100)
+plt.colorbar()
+plt.savefig("mapa_diff_topo.png")
+plt.close()
+
+cond_uplift = diff_topo>0
+sum_uplift = np.sum(diff_topo,axis=1)
+
+
+print(np.shape(sum_uplift))
+#print(sum_uplift)
+plt.figure()
+plt.plot(y,sum_uplift)
+plt.savefig("Section_Andes.png")
+plt.close()
+
+
+A = np.loadtxt("crustal_shortening.txt",skiprows=2)
+
+t_uplift = A[:,0]
+
+short = A[:,1:20:2]
+print(np.shape(short))
+
+lat_vec = np.array([38,36,33.5,30.5,25,20.5,18,15,10,5])
+lat_vec *= -1.0
+
+
+lat_interp = np.copy(y)
+
+hc0 = 38.0
+
+t_max = 50 # in Myr
+dt = 1.0
+cont=0
+
+hf = hc0 + 0.0*lat_interp
+hcr_all = []
+
+for t in range(t_max):
+    selec_short = short[t_max-t,:]
+    short_interp = np.interp(lat_interp,lat_vec, selec_short) #km/Myr
+
+    dl = np.copy(short_interp)
+
+
+    hcr = hc0*dl/dt
+    hf += hcr*dt
+
+    hcr_all = np.append(hcr_all,hcr)
+    cont+=1
+
+linhas = np.size(hcr_all)//cont
+hcr_all = np.reshape(hcr_all,(cont,linhas))
+
+print("cont = ",cont)
+print("linhas = ",linhas)
+print("hcr_all ",np.shape(hcr_all))
+print("diff_topo ",np.shape(diff_topo))
+print("sum_uplift ",np.shape(sum_uplift))
+
+
+print(np.max(hcr_all[0,:]))
+print(np.max(hcr_all[-1,:]))
+
+
+all_uplift_rate = []
+
+for t in range(t_max):
+    vec = hcr_all[t,:] #km/Myr
+    print(vec)
+
+    uplift_rate = np.zeros_like(diff_topo)
+
+    cond = sum_uplift > 0.0
+
+    for j in range(nlon):
+        uplift_rate[cond,j] = diff_topo[cond,j]* vec[cond]/sum_uplift[cond]/delta_x/1000.0 #m/yr
+
+    uplift_rate = np.reshape(uplift_rate,np.size(X))
+
+    all_uplift_rate = np.append(all_uplift_rate,uplift_rate)
+
+all_uplift_rate = np.reshape(all_uplift_rate,(t_max,np.size(X)))
+
+
+
+all_uplift_rate *= 2 #!!!!! Apenas para teste!!!
+
+#uplift_rate[topo_copy<800.0] = 0.0
+#uplift_rate *=0.18/1.0E6
+
+
+
+
+##Soergue mais os Andes próximo ao equador
+#uplift_rate2  *= 1.5*(np.exp(-(lat-0.0)**2/10**2))+1.0
 
 
 ##### Soergue os escudos
@@ -146,7 +262,7 @@ moho = X*0 + 35000.0
 
 
 ##### Constrói o mapa litológico
-lithology = X*0 + 800_000.0
+lithology = X*0 + 600_000.0
 lithology[topo>300] = 4_000_000.0
 
 cond = (lon>-70)&(lon<-50)&(lat>-1)&(topo>50)
@@ -200,7 +316,7 @@ print(np.shape(topo), np.shape(moho), np.shape(lithology), np.shape(Te))
 np.savetxt("topo_moho_lito_Te.txt",np.c_[topo,moho,lithology,Te],fmt="%.2f")
 
 # Criar triangulação
-triang = tri.Triangulation(X, Y)
+triang = tri.Triangulation(lon, lat)
 
 # Compute the area of each triangle
 xt = X[triang.triangles]
@@ -343,7 +459,7 @@ vR2andes 2.0
 Kf 0.08
 Km 1000.0
 
-ls 200.0
+ls 2000.0
 lb 800000.0
 lb2 4000000.0
 
@@ -351,9 +467,9 @@ uplift_scale 1.0
 time_ofchangeu 1000000.0
 uplift_scale2 1.0
 
-tempo_max 40000000.0
+tempo_max 50000000.0
 dt 200
-n_sub_dt 1000
+n_sub_dt 100
 
 """
 
@@ -369,14 +485,85 @@ with open("param_OrogSedFlex_1.1.txt", "w") as f:
 ##############
 ##############
 ##############
+
+
+# Dynamic Topography
+
 # Create the parameter file for dynamic topography
 params = f"""
-1
+11
 1.0
+{t_max*1.0}
+55.0
+50.0
+45.0
 40.0
-40.0
+35.0
+30.0
+25.0
+20.0
+15.0
+10.0
+5.0
 0.0
 """
+
+
+
+for t in range(0,60,5):
+
+    x,y,z = np.loadtxt("../DT/s40rts_mba/s40rts_mba_%d.xyz"%(t),unpack=True)
+
+    n = np.size(x)
+    print(n)
+
+    print(np.min(x),np.max(x))
+    print(np.min(y),np.max(y))
+
+    if t==0:
+        xmin = np.min(x)
+        xmax = np.max(x)
+        ymin = np.min(y)
+        ymax = np.max(y)
+
+    nx = (np.max(x) - np.min(x))/0.5 + 1
+    ny = (np.max(y) - np.min(y))/0.5 + 1
+
+    nx = int(nx)
+    ny = int(ny)
+
+    print(nx,ny)
+
+    if t==0:
+        XX = np.reshape(x,(nx,ny))#, order='F')
+        YY = np.reshape(y,(nx,ny))#, order='F')
+        ZZ = np.reshape(z,(nx,ny))#, order='F')
+
+    else:
+        ZZ = ZZ*0 + np.nan
+        for i in range(n):
+            ix = int((x[i]-xmin)/0.5)
+            iy = int((y[i]-ymin)/0.5)
+            ZZ[ix,iy] = z[i]
+        ZZ = ZZ[::-1,:]
+
+    
+    mapa = nearest(y,x,z,lon,lat)
+    
+    if t==0:
+        mapa_aux = np.copy(mapa)
+    
+    else:
+        diff = mapa_aux - mapa
+        mapa_aux = np.copy(mapa)
+        plt.figure()
+        plt.title("%lf - %lf"%(t-5,t))
+        plt.scatter(lon,lat,c=diff,vmin=-400,vmax=400,cmap = "bwr")
+        plt.plot(clon,clat,"k")
+        plt.colorbar()
+        
+        np.savetxt("Diff_%02d_%02d.txt"%(t-5,t),diff)
+
 
 # Create the parameter file
 with open("param_topo_din.txt", "w") as f:
@@ -386,8 +573,19 @@ with open("param_topo_din.txt", "w") as f:
             f.write(" ".join(line.split()) + "\n")
 
 
-#dynamic topography (dt1 dt2)
-np.savetxt("topo_din_map.txt",np.c_[topo*0,topo*0],fmt="%.2f")
+d00 = np.loadtxt("Diff_00_05.txt")/5.0E6
+d05 = np.loadtxt("Diff_05_10.txt")/5.0E6
+d10 = np.loadtxt("Diff_10_15.txt")/5.0E6
+d15 = np.loadtxt("Diff_15_20.txt")/5.0E6
+d20 = np.loadtxt("Diff_20_25.txt")/5.0E6
+d25 = np.loadtxt("Diff_25_30.txt")/5.0E6
+d30 = np.loadtxt("Diff_30_35.txt")/5.0E6
+d35 = np.loadtxt("Diff_35_40.txt")/5.0E6
+d40 = np.loadtxt("Diff_40_45.txt")/5.0E6
+d45 = np.loadtxt("Diff_45_50.txt")/5.0E6
+d50 = np.loadtxt("Diff_50_55.txt")/5.0E6
+
+np.savetxt("topo_din_map.txt",np.c_[d50,d45,d40,d35,d30,d25,d20,d15,d10,d05,d00])
 
 
 
@@ -396,34 +594,52 @@ np.savetxt("topo_din_map.txt",np.c_[topo*0,topo*0],fmt="%.2f")
 ##############
 ##############
 # Create the parameter file for uplift
-params = f"""
-1
-1.0 0.0 40000000.0
-"""
 
-# Create the parameter file
+n = t_max
+step = 1_000_000.0
+
 with open("param_uplift.txt", "w") as f:
-    for line in params.split("\n"):
-        line = line.strip()
-        if len(line):
-            f.write(" ".join(line.split()) + "\n")
+    f.write(f"{n}\n")
+    for i in range(n):
+        start = i * step
+        end = (i + 1) * step
+        f.write(f"1.0 {start} {end}\n")
+
+
 
 #uplift map
-np.savetxt("uplift_map.txt",np.c_[uplift_rate],fmt="%lg")
+np.savetxt("uplift_map.txt",np.c_[np.transpose(all_uplift_rate)],fmt="%lg")
+
+
+for t in range(t_max):
+    plt.figure(figsize=(20,10))
+    plt.axis("equal")
+    norm = colors.Normalize(vmin=0, vmax=1300)
+    contour = plt.tricontourf(triang, all_uplift_rate[t,:]*1.0E6,levels=30,vmin=0,vmax=1300)
+    cbar = plt.colorbar(contour)
+    plt.savefig("Uplift_%02d.png"%(t))
+    plt.close()
+
+
+uplift_rate_mean = np.sum(all_uplift_rate,axis=0)/t_max
+
+
 
 plt.figure(figsize=(20,10))
 plt.axis("equal")
-plt.tricontourf(triang, uplift_rate*1.0E6,levels=30)
-plt.colorbar()
-plt.savefig("Uplift.png")
+norm = colors.Normalize(vmin=0, vmax=1300)
+contour = plt.tricontourf(triang, uplift_rate_mean*1.0E6,levels=30,vmin=0,vmax=1300)
+cbar = plt.colorbar(contour)
+plt.savefig("Uplift_mean.png")
 plt.close()
 
 
-Prec = X*0 + 1.0
-#cond = (lat>-10) & (lat<5) & (lon>-80) & (lon<-72)
-#Prec[cond] = 3.0
 
-for i in range(41):
+Prec = X*0 + 1.0
+cond = (lat>-10) & (lat<5) & (lon>-80) & (lon<-72)
+Prec[cond] = 3.0
+
+for i in range(t_max+1):
     np.savetxt("Prec_%d.txt"%(i),np.c_[Prec, Prec, Prec],fmt="%.2f")
 
 plt.figure(figsize=(20,10))
