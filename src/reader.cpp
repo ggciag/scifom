@@ -15,6 +15,8 @@ extern double axis_stream;
 extern double Terigida;
 extern double Teoffshore;
 
+extern double RHOS;
+
 
 extern double vR;
 extern double time_ofchangevR;
@@ -135,6 +137,8 @@ void reader(){
         //fscanf(entra_var, "%lf",&dt);
 
         else if (strcmp(tkn_w, "n_sub_dt") == 0) {n_sub_dt = atoi(tkn_v);}
+
+        else if (strcmp(tkn_w, "rhos") == 0) {RHOS = atof(tkn_v);}
 
         // Else
         else

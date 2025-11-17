@@ -10,6 +10,9 @@ extern long **Tri;
 extern double **xy;
 extern long tri;
 
+extern double RHOC;
+extern double RHOS;
+
 
 extern long nodes;
 extern long **conec;
@@ -411,7 +414,7 @@ void fluvi_min()
 		lsr_map[i]*=ls;
 		Qr_prov[i]*=Kf/dist_fluvi[i];
 	}
-	double hi,hj,ref;
+	double hi,hj,ref,fac_density;
 	
 	for (cont=0;cont<n_sub_dt;cont++){
 		
@@ -442,9 +445,10 @@ void fluvi_min()
 				Qf[j] += Qeqb;
 			} else {
 				lb = (h_bed[i] < hi) ? lsr_map[i] : Lf_vec[i];
+				fac_density = (h_bed[i] < hi) ? 1.0 : RHOC/RHOS;
 				double df_local = (Qf[i] - Qeqb) * inv_area[i] * (dist_fluvi[i] / lb);
 				Df[i] = df_local;
-				Qf[j] += Qf[i] + (Qeqb - Qf[i]) * (dist_fluvi[i] / lb);
+				Qf[j] += Qf[i] + (Qeqb - Qf[i]) * (dist_fluvi[i] / lb) * fac_density;
 			}
 		}
 		
