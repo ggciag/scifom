@@ -1,6 +1,8 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.tri as tri
+from matplotlib import colors
+from scipy.interpolate import RegularGridInterpolator
 
 #Função que cria uma malha irregular a das coordenadas dos cantos da malha
 def irregular_mesh(x,y,perturbation=0.2):
@@ -35,6 +37,8 @@ def nearest(Xn,Yn,Map,x,y):
 
 topo = np.loadtxt("../ETOPO10.txt")
 
+t_max = 50
+
 topo = np.reshape(topo,(1801,3601))
 
 latmin = -15.0
@@ -55,21 +59,40 @@ topo = topo[ilatmax:ilatmin+1,ilongmin:ilongmax+1]
 
 plt.figure(figsize=(10,10))
 plt.imshow(topo)
-plt.savefig("topo_Amazon.png",dpi=300)
+plt.savefig("topo.png",dpi=300)
 plt.close()
 
-resolutions = [0.1,0.2,0.5]
-resol = resolutions[2]
+
+
 
 
 #Resolução 0.1 x 0.1 graus
-if (resol==resolutions[0]):
-    nx = int(longmax-longmin)*10+1
-    x = np.linspace(longmin,longmax,nx)
-    ny = int(latmax-latmin)*10+1
-    y = np.linspace(latmin,latmax,ny)
-    topo = topo[::-1,:]
 
+nx_old = int(longmax-longmin)*10+1
+x_old = np.linspace(longmin,longmax,nx_old)
+ny_old = int(latmax-latmin)*10+1
+y_old = np.linspace(latmin,latmax,ny_old)
+topo_old = topo[::-1,:]
+delta_x_old = 110.0/10
+
+interp = RegularGridInterpolator((y_old, x_old), topo_old)
+
+
+nxl = 3 # Number of segments per degree
+
+nx = int((longmax-longmin)*nxl+1)
+x = np.linspace(longmin,longmax,nx)
+ny = int((latmax-latmin)*nxl+1)
+y = np.linspace(latmin,latmax,ny)
+
+X_new, Y_new = np.meshgrid(x, y)
+pts = np.array([Y_new.ravel(), X_new.ravel()]).T
+
+topo = interp(pts).reshape(len(y), len(x))
+
+delta_x = 110.0/nxl
+
+"""
 #Resolução 0.2 x 0.2 graus
 elif (resol==resolutions[1]):
     nx = int(longmax-longmin)*5+1
@@ -77,6 +100,7 @@ elif (resol==resolutions[1]):
     ny = int(latmax-latmin)*5+1
     y = np.linspace(latmin,latmax,ny)
     topo = topo[::-2,::2]
+    delta_x = 2*110.0/10
 
 #Resolução 0.5 x 0.5 graus
 elif (resol==resolutions[2]):
@@ -85,6 +109,11 @@ elif (resol==resolutions[2]):
     ny = int((latmax-latmin)*2+1)
     y = np.linspace(latmin,latmax,ny)
     topo = topo[::-5,::5]
+    delta_x = 5*110.0/10
+"""
+
+
+
 
 
 print(np.size(x),np.size(y),np.shape(topo))
@@ -94,11 +123,15 @@ print(int(nx*ny),int((nx-1)*(ny-1)*2))
 X,Y = irregular_mesh(x,y)
 
 
+nlat,nlon = np.shape(X)
+print(nlat,nlon)
+
+
 
 plt.figure(figsize=(10,10))
 plt.contourf(x,y,topo,100)
 plt.axis("equal")
-plt.savefig("topo_Amazon_mesh.png",dpi=300)
+plt.savefig("topo_mesh.png",dpi=300)
 plt.close()
 
 
@@ -122,17 +155,52 @@ topo[cond] *= 0.001
 cond = (lon>-81.0) & (lon<-66.0) & (lat>=-15.0) & (lat<0.0) & (topo>0.0)
 topo[cond] *= 0.001
 
-cond = (lon>-81.0) & (lon<-69.0) & (lat>=-15.0) & (topo>0.0)
+cond = (lon>-80.0) & (lon<-69.0) & (lat>=-15.0) & (topo>0.0)
 topo[cond] *= 0.001
 
+cond = (lon>-75.0) & (lon<-55.0) & (lat>=9.0) & (lat<=11.0) & (topo>0.0)
+topo[cond] *= 0.001
 
 
 
 ##### Constrói o soerguimento andino
 
+diff_topo = (topo_copy - topo)
+diff_topo[topo_copy<800.0] = 0.0
+
+
+diff_topo = np.reshape(diff_topo,(nlat,nlon))
+
+
+plt.figure(figsize=(20,10))
+plt.axis("equal")
+plt.contourf(x,y,diff_topo,100)
+plt.colorbar()
+plt.savefig("mapa_diff_topo.png")
+plt.close()
+
+cond_uplift = diff_topo>0
+sum_uplift = np.sum(diff_topo,axis=1)
+
+
+print(np.shape(sum_uplift))
+#print(sum_uplift)
+plt.figure()
+plt.plot(y,sum_uplift)
+plt.savefig("Section_Andes.png")
+plt.close()
+
 uplift_rate = (topo_copy - topo)
+
+
 uplift_rate[topo_copy<800.0] = 0.0
 uplift_rate *=0.18/1.0E6
+
+
+
+
+##Soergue mais os Andes próximo ao equador
+#uplift_rate2  *= 1.5*(np.exp(-(lat-0.0)**2/10**2))+1.0
 
 
 ##### Soergue os escudos
@@ -146,7 +214,7 @@ moho = X*0 + 35000.0
 
 
 ##### Constrói o mapa litológico
-lithology = X*0 + 800_000.0
+lithology = X*0 + 600_000.0
 lithology[topo>300] = 4_000_000.0
 
 cond = (lon>-70)&(lon<-50)&(lat>-1)&(topo>50)
@@ -200,7 +268,7 @@ print(np.shape(topo), np.shape(moho), np.shape(lithology), np.shape(Te))
 np.savetxt("topo_moho_lito_Te.txt",np.c_[topo,moho,lithology,Te],fmt="%.2f")
 
 # Criar triangulação
-triang = tri.Triangulation(X, Y)
+triang = tri.Triangulation(lon, lat)
 
 # Compute the area of each triangle
 xt = X[triang.triangles]
@@ -343,7 +411,7 @@ vR2andes 2.0
 Kf 0.08
 Km 1000.0
 
-ls 200.0
+ls 2000.0
 lb 800000.0
 lb2 4000000.0
 
@@ -353,7 +421,7 @@ uplift_scale2 1.0
 
 tempo_max 40000000.0
 dt 200
-n_sub_dt 1000
+n_sub_dt 100
 
 """
 
@@ -373,8 +441,8 @@ with open("param_OrogSedFlex_1.1.txt", "w") as f:
 params = f"""
 1
 1.0
-40.0
-40.0
+{t_max*1.0}
+{t_max*1.0}
 0.0
 """
 
@@ -408,6 +476,8 @@ with open("param_uplift.txt", "w") as f:
         if len(line):
             f.write(" ".join(line.split()) + "\n")
 
+
+
 #uplift map
 np.savetxt("uplift_map.txt",np.c_[uplift_rate],fmt="%lg")
 
@@ -419,11 +489,12 @@ plt.savefig("Uplift.png")
 plt.close()
 
 
-Prec = X*0 + 1.0
-#cond = (lat>-10) & (lat<5) & (lon>-80) & (lon<-72)
-#Prec[cond] = 3.0
 
-for i in range(41):
+Prec = X*0 + 1.0
+cond = (lat>-10) & (lat<5) & (lon>-80) & (lon<-72)
+Prec[cond] = 3.0
+
+for i in range(t_max+1):
     np.savetxt("Prec_%d.txt"%(i),np.c_[Prec, Prec, Prec],fmt="%.2f")
 
 plt.figure(figsize=(20,10))
